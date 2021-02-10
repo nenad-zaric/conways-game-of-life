@@ -1,16 +1,16 @@
 import java.util.Random;
 
 public class Grid {
-	private int xDimension;
 	private int yDimension;
+	private int xDimension;
 	private Cell[][] cellGrid;
 	private Random random = new Random();
 	
-	public Grid(int xDimension, int yDimension) {
+	public Grid(int yDimension, int xDimension) {
 		super();
 		this.xDimension = xDimension;
 		this.yDimension = yDimension;
-		cellGrid = new Cell[xDimension][yDimension];
+		cellGrid = new Cell[yDimension][xDimension];
 		initCells();
 	}
 	
@@ -39,8 +39,8 @@ public class Grid {
 	}
 
 	public void initCells() {
-		for(int i=0;i<xDimension;i++) {
-			for(int j=0;j<yDimension;j++) {
+		for(int i=0;i<yDimension;i++) {
+			for(int j=0;j<xDimension;j++) {
 				Cell c = new Cell(false);
 				cellGrid[i][j] = c;
 			}
@@ -48,8 +48,8 @@ public class Grid {
 	}
 	
 	public void resetCells() {
-		for(int i=0;i<xDimension;i++) {
-			for(int j=0;j<yDimension;j++) {
+		for(int i=0;i<yDimension;i++) {
+			for(int j=0;j<xDimension;j++) {
 				cellGrid[i][j].setAlive(false);
 			}
 		}
@@ -58,8 +58,8 @@ public class Grid {
 	public void generateRandom() {
 		boolean temp;
 		double randomDouble;
-		for(int i=0;i<xDimension;i++) {
-			for(int j=0;j<yDimension;j++) {
+		for(int i=0;i<yDimension;i++) {
+			for(int j=0;j<xDimension;j++) {
 				randomDouble = Math.random();
 				if(randomDouble < 0.8) {
 					temp = false;
@@ -73,8 +73,8 @@ public class Grid {
 	}
 	
 	public void printGrid() {
-		for(int i=0;i<xDimension;i++) {
-			for(int j=0;j<yDimension;j++) {
+		for(int i=0;i<yDimension;i++) {
+			for(int j=0;j<xDimension;j++) {
 				if(cellGrid[i][j].isAlive()) {
 					System.out.print("1   ");
 				}
