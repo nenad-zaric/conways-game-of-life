@@ -4,8 +4,14 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -17,8 +23,8 @@ public class GameFrame extends JFrame {
 	private JPanel contentPane;
 	private int dimension = 30;
 	private int cellSize = 20;
-	private int width = dimension*cellSize+10;
-	private int height = dimension*cellSize+100;
+	private int width = dimension*cellSize+25;
+	private int height = dimension*cellSize+110;
 	private Grid grid = new Grid(dimension, dimension);
 	private GamePanel g;
 	private boolean running = false;
@@ -44,6 +50,8 @@ public class GameFrame extends JFrame {
 	public GameFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 0, width, height);
+		setResizable(false);
+
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -80,19 +88,64 @@ public class GameFrame extends JFrame {
 		});
 		mnNew.add(mntmRandom);
 		
-		JMenuItem mntmCustomDimensions = new JMenuItem("Custom dimensions");
-		mnNew.add(mntmCustomDimensions);
-		
 		JMenu mnOpen = new JMenu("Open");
 		mnFil.add(mnOpen);
 		
-		JMenuItem mntmBuiltin = new JMenuItem("Built-in");
-		mnOpen.add(mntmBuiltin);
-		
 		JMenuItem mntmFromFile = new JMenuItem("From file");
+		mntmFromFile.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Specify a file to open"); 
+
+		FileNameExtensionFilter csvFilter = new FileNameExtensionFilter("csv files (*.csv)", "csv");
+
+		fileChooser.addChoosableFileFilter(csvFilter);
+		fileChooser.setFileFilter(csvFilter);
+
+		int userSelection = fileChooser.showOpenDialog(rootPane);
+		 
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+		    File fileToOpen = fileChooser.getSelectedFile();
+		    System.out.println("Save as file: " + fileToOpen.getAbsolutePath());
+		    
+		    try {
+		g.readFromFile(fileToOpen);
+		} catch (FileNotFoundException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+		}
+		}
+
+		}
+		});
 		mnOpen.add(mntmFromFile);
 		
 		JMenuItem mntmSave = new JMenuItem("Save");
+		mntmSave.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setDialogTitle("Specify a file to save"); 
+
+		FileNameExtensionFilter csvFilter = new FileNameExtensionFilter("csv files (*.csv)", "csv");
+
+		fileChooser.addChoosableFileFilter(csvFilter);
+		fileChooser.setFileFilter(csvFilter);
+		int userSelection = fileChooser.showSaveDialog(rootPane);
+		 
+		if (userSelection == JFileChooser.APPROVE_OPTION) {
+		    File fileToSave = fileChooser.getSelectedFile();
+		    System.out.println("Save as file: " + fileToSave.getAbsolutePath());
+		    
+		try {
+		g.writeToFile(fileToSave);
+		} catch (IOException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+		}
+		}
+
+		}
+		});
 		mnFil.add(mntmSave);
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
@@ -102,19 +155,6 @@ public class GameFrame extends JFrame {
 			}
 		});
 		mnFil.add(mntmExit);
-		
-		JMenu mnHelp = new JMenu("Help");
-		menuBar.add(mnHelp);
-		
-		JMenuItem mntmExplenation = new JMenuItem("Explenation");
-		mnHelp.add(mntmExplenation);
-		
-		JMenuItem mntmAbout = new JMenuItem("About");
-		mnHelp.add(mntmAbout);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
-		setContentPane(contentPane);
 		
 		g = new GamePanel(grid,cellSize);
 		getContentPane().add(g);
