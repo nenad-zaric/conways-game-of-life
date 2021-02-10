@@ -4,10 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import java.util.Scanner;
 
 public class GamePanel extends JPanel implements ActionListener {
 	private int columns;
@@ -51,11 +57,11 @@ public class GamePanel extends JPanel implements ActionListener {
 					System.out.println("X:" + xCoordinate + " Y:" + yCoordinate);
 					
 					//Menja stanje celije na koju je kliknuto
-					if(!grid.getCellGrid()[xCoordinate][yCoordinate].isAlive()) {
-						grid.getCellGrid()[xCoordinate][yCoordinate].setAlive(true);
+					if(!grid.getCellGrid()[yCoordinate][xCoordinate].isAlive()) {
+						grid.getCellGrid()[yCoordinate][xCoordinate].setAlive(true);
 					}
 					else {
-						grid.getCellGrid()[xCoordinate][yCoordinate].setAlive(false);
+						grid.getCellGrid()[yCoordinate][xCoordinate].setAlive(false);
 					}
 					revalidate();
 					repaint();
@@ -64,6 +70,78 @@ public class GamePanel extends JPanel implements ActionListener {
 			}
 		});
 	}
+	
+	
+	
+	public void writeToFile(File gridFile) throws IOException {
+		BufferedWriter br = new BufferedWriter(new FileWriter(gridFile));
+		int counter = 0;
+		for(int i=0; i<columns; i++) {
+	
+			for(int j=0; j<rows; j++) {
+				if(grid.getCellGrid()[i][j].isAlive()) {
+					if(i==columns-1 && j==rows-1) {
+						br.append('1');
+						counter++;
+					}
+					else {
+						br.append('1');
+						br.append(',');
+						counter++;
+					}
+				}
+				else if(!grid.getCellGrid()[i][j].isAlive()) {
+					if(i==columns-1 && j==rows-1) {
+						br.append('0');
+						counter++;
+					}
+					else {
+						br.append('0');
+						br.append(',');
+						counter++;
+					}
+				}
+			}
+		}
+		System.out.println("Upisano celija: " + counter);
+		br.close();
+		}
+	
+	
+	
+	public void readFromFile(File gridFile) throws FileNotFoundException {
+		Cell[][] newCellGrid = new Cell[columns][rows];
+		Scanner scan = new Scanner(gridFile);  
+		scan.useDelimiter(",");
+		int counter = 0;
+		int counterb = 0;
+		for(int i=0; i<rows; i++) {
+			for(int j=0; j<columns; j++) {
+				
+				counter++;
+				if(scan.hasNextInt()){
+					counterb++;
+					int current = scan.nextInt();
+					if(current==1) {
+						Cell c = new Cell(true);
+					    newCellGrid[i][j] = c;
+					    System.out.println(true);
+					}
+					else if(current==0) {
+						Cell c = new Cell(false);
+					    newCellGrid[i][j] = c;
+					    System.out.println(false);
+					}
+				}
+			}
+		}
+		System.out.println("Int:" + counterb);
+		System.out.println("Items:" + counter);
+		grid.setCellGrid(newCellGrid);;
+		revalidate();
+		repaint();
+		scan.close();
+		}
 	
 	public void step() {
 		//Metoda koja azurira stanje celija u gridu nakon svakog koraka
@@ -109,13 +187,20 @@ public class GamePanel extends JPanel implements ActionListener {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
 		//Iscrtava zive i mrtve celije
 		for(int i=0; i<rows; i++) {
 			for(int j=0; j<columns; j++) {
-				if(!grid.getCellGrid()[i][j].isAlive()) {
+				boolean state;
+				try {
+					state = grid.getCellGrid()[j][i].isAlive();
+				} catch (Exception e) {
+					state = true;
+				}
+				if(!state) {
 					g.setColor(Color.black);
 				}
-				else if(grid.getCellGrid()[i][j].isAlive()) {
+				else if(state) {
 					g.setColor(Color.green);
 				}
 				g.fillRect(i*cellSize, j*cellSize, cellSize, cellSize);			
@@ -124,10 +209,10 @@ public class GamePanel extends JPanel implements ActionListener {
 		//Iscrtava linije koje cine "mrezu"
 		g.setColor(Color.lightGray);
 		for(int i=0; i<rows;i++) {
-			g.drawLine(0, i*cellSize, rows*cellSize, i*cellSize);
+			g.drawLine(0, i*cellSize, rows*cellSize-5, i*cellSize);
 		}
 		for(int i=0; i<columns;i++) {
-			g.drawLine(i*cellSize, 0, i*cellSize, columns*cellSize);
+			g.drawLine(i*cellSize, 0, i*cellSize, columns*cellSize-5);
 		}
 		//Iscrtava tamno sive celije koje predstavljaju ivicu
 		for(int i=0; i<rows; i++) {
